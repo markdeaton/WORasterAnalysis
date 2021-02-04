@@ -275,6 +275,9 @@ define([
            *   ...here's some general guidance for creating parameter nodes, labels, sliders, etc...
            */
 
+          //
+          // PARAMETER INFOS ARE THE DEFAULT PARAMETERS AUGMENTED WITH UI ELEMENTS //
+          //
           this.parameterInfos = response.data.parameters;
           this.parameterInfos.forEach(parameterInfo => {
 
@@ -358,7 +361,7 @@ define([
           console.info('RASTER ID: ', parameterInfo.rasterId, 'WEIGHT: ', parameterInfo.weight);
 
           // debug //
-          parameterInfo.percentNode.innerHTML = (new Date()).getUTCSeconds();
+          parameterInfo.percentNode.innerHTML = `${(new Date()).getUTCSeconds()}%`;
         });
 
       });

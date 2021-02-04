@@ -216,8 +216,8 @@ body * {
 }
 
 .parameter-node {
-  padding       : 5px;
-  margin-bottom : 5px;
+  padding       : 3px;
+  margin-bottom : 2px;
   border-bottom : solid 1px #ededed;
 }
 
@@ -226,11 +226,12 @@ body * {
 }
 
 .parameter-name {
-  width : 150px;
+  width : 300px;
 }
 
 .parameter-slider {
-
+  margin-left  : 0.5rem;
+  margin-right : 0.5rem;
 }
 
 .parameter-percent {
