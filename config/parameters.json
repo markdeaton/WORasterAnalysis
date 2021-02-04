@@ -14,8 +14,8 @@
       "label": "Core Compactness Ratio",
       "help": "The ratio between......",
       "values": {
-        "GI Center Defaults": 2,
-        "Biodiversity Defaults": 2
+        "GI Center Defaults": 0,
+        "Biodiversity Defaults": 22
       }
     }
   ]

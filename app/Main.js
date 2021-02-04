@@ -271,6 +271,7 @@ define([
         // PARAMETERS CONTAINER //
         const parametersContainer = document.getElementById('parameters-container');
 
+        // GET PARAMETER CONFIG //
         esriRequest('./config/parameters.json').then(response => {
 
           /**
@@ -302,12 +303,11 @@ define([
             // DEFAULT VALUE //
             const defaultValue = parameterInfo.values["GI Center Defaults"];
 
-            // PAREMETER SLIDER //
+            // PARAMETER SLIDER //
             const parameterSlider = new Slider({
               container: sliderNode,
               min: 0, max: 100,
               precision: 0,
-              values: [defaultValue],
               snapOnClickEnabled: true,
               visibleElements: { labels: false, rangeLabels: false }
             });
@@ -325,8 +325,10 @@ define([
               this.emit("weight-change", { rasterId: parameterInfo.rasterId, weight: value });
             });
 
-            // ASSOCIATE SLIDER AND WEIGHT WITH PARAMETER //
-            parameterInfo.weight = defaultValue;
+            // SET INITIAL VALUE //
+            parameterSlider.values = [defaultValue];
+
+            // ASSOCIATE SLIDER WITH PARAMETER //
             parameterInfo.slider = parameterSlider;
           });
 
@@ -349,38 +351,37 @@ define([
 
       });
 
+      // PRESET SELECT //
+      const presetsSelect = document.getElementById('presets-select');
+      presetsSelect.addEventListener('change', () => { applyPreset() });
 
-      // RESET //
+      // RESET BTN //
       const resetBtn = document.getElementById('reset-btn');
-      resetBtn.addEventListener('click', () => { doReset(); });
+      resetBtn.addEventListener('click', () => { applyPreset(); });
 
-      // APPLY //
+      // APPLY BTN //
       const applyBtn = document.getElementById('apply-btn');
       applyBtn.addEventListener('click', () => { doAnalysis(); });
 
       // NHD INPUT //
       const nhdInput = document.getElementById('nhd-input');
+      nhdInput.addEventListener('change', () => { doAnalysis(); });
 
       /**
-       * RESET
+       * APPLY CURRENT PRESET
+       *  - GI Center Defaults
+       *  - Biodiversity Defaults
        */
-      const doReset = () => {
-        console.info('RESET: ');
-
-        const presetOption = document.getElementById('presets-select').value;
-
-
+      const applyPreset = () => {
         this.parameterInfos.forEach(parameterInfo => {
-          console.info(parameterInfo.rasterId, parameterInfo.weight);
-
-
+          parameterInfo.slider.values = [parameterInfo.values[presetsSelect.value]];
         });
-
-
+        doAnalysis();
       };
 
       /**
        *   DO ANALYSIS
+       *    - BUILD UP RASTER FUNCTION HERE
        */
       const doAnalysis = () => {
         console.info('ANALYSIS LAYER: ', rasterAnalysisLayer);
@@ -391,8 +392,8 @@ define([
 
 
         });
-
       }
+
     }
 
   });
