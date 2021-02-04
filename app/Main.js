@@ -271,9 +271,6 @@ define([
         // PARAMETERS CONTAINER //
         const parametersContainer = document.getElementById('parameters-container');
 
-        // PARAMETER VALUES //
-        this.parameters = new Map();
-
         esriRequest('./config/parameters.json').then(response => {
 
           /**
@@ -281,8 +278,8 @@ define([
            *   ...here's some general guidance for creating parameter nodes, labels, sliders, etc...
            */
 
-          const parameterInfos = response.data.parameters;
-          parameterInfos.forEach(parameterInfo => {
+          this.parameterInfos = response.data.parameters;
+          this.parameterInfos.forEach(parameterInfo => {
 
             const paramNode = domConstruct.create('div', {
               className: 'parameter-node content-row'
@@ -304,9 +301,8 @@ define([
 
             // DEFAULT VALUE //
             const defaultValue = parameterInfo.values["GI Center Defaults"];
-            // INITIAL PARAM VALUE //
-            this.parameters.set(parameterInfo.rasterId, { id: parameterInfo.rasterId, weight: defaultValue });
 
+            // PAREMETER SLIDER //
             const parameterSlider = new Slider({
               container: sliderNode,
               min: 0, max: 100,
@@ -322,11 +318,16 @@ define([
               labelNode.classList.toggle('btn-disabled', !hasValue);
               percentNode.innerHTML = hasValue ? `${value}%` : '';
 
-              this.parameters.set(parameterInfo.rasterId, { id: parameterInfo.rasterId, weight: value });
+              // CURRENT PARAMETER WEIGHT //
+              parameterInfo.weight = value;
 
+              // NOTIFY OF WEIGHT CHANGE //
               this.emit("weight-change", { rasterId: parameterInfo.rasterId, weight: value });
             });
 
+            // ASSOCIATE SLIDER AND WEIGHT WITH PARAMETER //
+            parameterInfo.weight = defaultValue;
+            parameterInfo.slider = parameterSlider;
           });
 
           // RESOLVE //
@@ -342,19 +343,20 @@ define([
      */
     initializeAnalysis: function(view, rasterAnalysisLayer){
 
+      // WEIGHT CHANGE //
+      this.on("weight-change", ({ rasterId, weight }) => {
+        console.info(rasterId, weight);
+
+      });
+
+
       // RESET //
       const resetBtn = document.getElementById('reset-btn');
-      resetBtn.addEventListener('click', () => {
-        console.info('RESET: ');
-        doReset();
-      });
+      resetBtn.addEventListener('click', () => { doReset(); });
 
       // APPLY //
       const applyBtn = document.getElementById('apply-btn');
-      applyBtn.addEventListener('click', () => {
-        console.info('APPLY: ');
-        doAnalysis();
-      });
+      applyBtn.addEventListener('click', () => { doAnalysis(); });
 
       // NHD INPUT //
       const nhdInput = document.getElementById('nhd-input');
@@ -365,14 +367,30 @@ define([
       const doReset = () => {
         console.info('RESET: ');
 
+        const presetOption = document.getElementById('presets-select').value;
+
+
+        this.parameterInfos.forEach(parameterInfo => {
+          console.info(parameterInfo.rasterId, parameterInfo.weight);
+
+
+        });
+
+
       };
 
       /**
        *   DO ANALYSIS
        */
       const doAnalysis = () => {
-        console.info('ANALYSIS: ', nhdInput.checked, Array.from(this.parameters.values()), rasterAnalysisLayer);
+        console.info('ANALYSIS LAYER: ', rasterAnalysisLayer);
+        console.info('NHD OPTION: ', nhdInput.checked);
 
+        this.parameterInfos.forEach(parameterInfo => {
+          console.info('RASTER ID: ', parameterInfo.rasterId, 'WEIGHT: ', parameterInfo.weight);
+
+
+        });
 
       }
     }
