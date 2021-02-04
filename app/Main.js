@@ -130,6 +130,7 @@ define([
         const home = new Home({ view: view });
         view.ui.add(home, { position: "top-left", index: 1 });
 
+        // PANEL TOGGLE //
         this.initializePanelToggle();
 
         // APPLICATION READY //
@@ -198,7 +199,9 @@ define([
     applicationReady: function(view){
       return promiseUtils.create((resolve, reject) => {
 
+        //
         // RASTER ANALYSIS LAYER //
+        //
         const rasterAnalysisLayer = view.map.layers.find(layer => { return (layer.title === "WO Raster Analysis"); });
         rasterAnalysisLayer.load().then(() => {
           // rasterAnalysisLayer
@@ -213,10 +216,7 @@ define([
             min: 0.0, max: 1.0,
             values: [rasterAnalysisLayer.opacity],
             snapOnClickEnabled: true,
-            visibleElements: {
-              labels: false,
-              rangeLabels: false
-            }
+            visibleElements: { labels: false, rangeLabels: false }
           });
           rasterAnalysisOpacitySlider.watch('values', values => {
             rasterAnalysisLayer.opacity = values[0];
@@ -224,8 +224,9 @@ define([
 
         });
 
-
+        //
         // PADUS LAYER //
+        //
         const padusLayer = view.map.layers.find(layer => { return (layer.title === "GAPStatus1And2"); });
         padusLayer.load().then(() => {
 
@@ -239,10 +240,7 @@ define([
             min: 0.0, max: 1.0,
             values: [padusLayer.opacity],
             snapOnClickEnabled: true,
-            visibleElements: {
-              labels: false,
-              rangeLabels: false
-            }
+            visibleElements: { labels: false, rangeLabels: false }
           });
           padusOpacitySlider.watch('values', values => {
             padusLayer.opacity = values[0];
@@ -250,7 +248,10 @@ define([
         });
 
 
-        this.initializeSliders(view);
+        // PARAMETER SLIDERS //
+        this.initializeParameterSliders();
+
+        // ANALYSIS //
         this.initializeAnalysis(view, rasterAnalysisLayer);
 
         resolve();
@@ -260,9 +261,8 @@ define([
     /**
      * https://developers.arcgis.com/javascript/latest/api-reference/esri-widgets-Slider.html
      *
-     * @param view
      */
-    initializeSliders: function(view){
+    initializeParameterSliders: function(){
 
       // PARAMETERS CONTAINER //
       const parametersContainer = document.getElementById('parameters-container');
