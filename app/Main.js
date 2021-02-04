@@ -28,8 +28,6 @@ define([
   "esri/core/watchUtils",
   "esri/core/promiseUtils",
   "esri/portal/Portal",
-  "esri/layers/ImageryLayer",
-  "esri/layers/support/RasterFunction",
   "esri/widgets/Home",
   "esri/widgets/Search",
   "esri/widgets/Slider",
@@ -391,6 +389,11 @@ define([
 
         this.parameterInfos.forEach(parameterInfo => {
           console.info('RASTER ID: ', parameterInfo.rasterId, 'WEIGHT: ', parameterInfo.weight);
+
+          rasterAnalysisLayer.renderingRule = {
+            functionName: (2 === 1) ? 'a' : 'b',
+            functionParameters: {}
+          };
 
 
         });
