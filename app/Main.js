@@ -137,7 +137,7 @@ define([
 
       });
     },
-      
+
     /**
      *
      * @param view
@@ -330,6 +330,9 @@ define([
         doAnalysis();
       });
 
+      // NHD INPUT //
+      const nhdInput = document.getElementById('nhd-input');
+
       /**
        * RESET
        */
@@ -342,7 +345,7 @@ define([
        *   DO ANALYSIS
        */
       const doAnalysis = () => {
-        console.info('ANALYSIS: ', this.parameters, rasterAnalysisLayer);
+        console.info('ANALYSIS: ', nhdInput.checked, this.parameters, rasterAnalysisLayer);
 
 
       }
