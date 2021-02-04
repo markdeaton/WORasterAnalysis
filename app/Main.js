@@ -372,7 +372,7 @@ define([
 
       // RESET BTN //
       const resetBtn = document.getElementById('reset-btn');
-      resetBtn.addEventListener('click', () => { applyPreset(); });
+      resetBtn.addEventListener('click', () => { resetWeights(); });
 
       // APPLY BTN //
       const applyBtn = document.getElementById('apply-btn');
@@ -389,7 +389,19 @@ define([
        */
       const applyPreset = () => {
         this.parameterInfos.forEach(parameterInfo => {
-          parameterInfo.slider.values = [parameterInfo.values[presetsSelect.value]];
+          //parameterInfo.weight = parameterInfo.values[presetsSelect.value];
+          parameterInfo.slider.values = [parameterInfo.weight];
+        });
+        doAnalysis();
+      };
+
+      /**
+       * RESET ALL WEIGHTS TO ZERO
+       */
+      const resetWeights = () => {
+        this.parameterInfos.forEach(parameterInfo => {
+          //parameterInfo.weight = 0;
+          parameterInfo.slider.values = [0];
         });
         doAnalysis();
       };
