@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+    <meta charset="utf-8">
+    <!-- Responsive -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <!-- End Responsive -->
+    <link rel="icon" href="./assets/favicon.ico" sizes="32x32" type="image/vnd.microsoft.icon">
+    <!-- http://esri.github.io/calcite-web/documentation/ -->
+    <link rel="stylesheet" href="https://s3-us-west-1.amazonaws.com/patterns.esri.com/files/calcite-web/1.2.5/css/calcite-web.min.css">
+    <link rel="stylesheet" href="https://js.arcgis.com/4.18/esri/themes/light/main.css">
+    <link rel="stylesheet" href="./styles/main.css">
+    <script src="./app/dojo.js"></script>
+    <script src="https://js.arcgis.com/4.18/"></script>
+    <script>require(["Application/init"]);</script>
+  </head>
+  <body class="">
+
+    <!-- DETAILS -->
+    <div class="js-modal modal-overlay" data-modal="app-details-dialog">
+      <div class="modal-content column-14" aria-labelledby="modal" role="dialog">
+        <div class="content-row trailer-half">
+          <div class="app-title font-size-3">Configurable Application</div>
+          <div class="js-modal-toggle esri-interactive icon-ui-close" aria-label="close-modal"></div>
+        </div>
+        <div class="app-description panel trailer-half">
+          This application loads a web map or web scene and provides simple mapping capabilities via the ArcGIS API for JavaScript 4.x.
+        </div>
+        <div class="content-row leader-half">
+          <div class="content-row">
+            <img src="./assets/esri_science_of_where.png">
+            <img id="geoxc-logo" src="./assets/GeoXC.png">
+          </div>
+          <div class="content-row">
+            <label class="content-row trailer-0 margin-right-half">
+              <div class="inline-block font-size--2">hide on startup&nbsp;</div>
+              <input id="hide-startup-input" type="checkbox" style="vertical-align:middle;">
+            </label>
+            <button class="btn btn-white js-modal-toggle">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOP NAVIGATION -->
+    <header id="header-panel" class="content-row padding-left-1 padding-right-1">
+      <div>
+        <span class="app-title top-nav-title header-text"></span>
+        <div id="panel-toggle-btn" class="top-nav-link btn-link header-text margin-left-4">Analysis Parameters</div>
+      </div>
+      <span class="top-nav-link icon-ui-description header-text js-modal-toggle esri-interactive" data-modal="app-details-dialog"></span>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <div id="main-container">
+
+      <!-- LEFT CONTAINER -->
+      <div id="left-container" class="content-col panel panel-no-border column-7 hide">
+        <div id="options-panel" class="panel panel-white trailer-half">
+          <div class="avenir-demi avenir-demi trailer-quarter">Layer Opacity</div>
+          <div class="content-row trailer-quarter">
+            <div class="font-size--3 column-3">Analysis Result</div>
+            <div id="raster-layer-opacity-slider"></div>
+          </div>
+          <div class="content-row">
+            <div class="font-size--3 column-3">PAD-US GAP Status 1 & 2</div>
+            <div id="padus-layer-opacity-slider"></div>
+          </div>
+        </div>
+        <div id="list-panel" class="panel panel-white">
+          <div class="content-col trailer-half">
+            <div class="font-size-1 trailer-quarter">
+              <div class="font-size-0 avenir-demi">Analysis Settings</div>
+            </div>
+            <label id="nhd-label" class="trailer-half esri-interactive">
+              <input id="nhd-input" type="checkbox">
+              <span class="font-size--3">Only Results with NHDPlus water flow > 1cfs</span>
+            </label>
+            <div class="content-row">
+              <button id="apply-btn" class="btn btn-theme">Apply</button>
+              <div id="selection-count-label" class="font-size--3 text-red">0 selected</div>
+              <button id="reset-btn" class="btn btn-theme">Reset</button>
+            </div>
+          </div>
+          <div id="parameters-container"></div>
+        </div>
+      </div>
+
+      <!-- VIEW CONTAINER -->
+      <div id="view-container" class="content-col panel panel-no-padding panel-no-border">
+        <div id="view-node" class="loading"></div>
+      </div>
+
+    </div>
+
+    <div id="share-panel" class="panel panel-theme column-6 hide">
+      <div class="font-size--2">Shareable link has been copied to the clipboard.</div>
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "title": "",
+  "appid": "",
+  "group": "",
+  "webmap": "5e93042771cc40829e39806618287912",
+  "webscene": "",
+  "portalUrl": "https://www.arcgis.com",
+  "oauthappid": null,
+  "proxyUrl": "",
+  "units": "dual",
+  "helperServices": {
+    "geometry": {
+      "url": null
+    },
+    "printTask": {
+      "url": null
+    },
+    "elevationSync": {
+      "url": null
+    },
+    "geocode": [
+      {
+        "url": null
+      }
+    ]
+  },
+  "ThemeTextColor": "",
+  "ThemeBackgroundColor": "",
+  "ThemeHighlightColor": ""
+}
