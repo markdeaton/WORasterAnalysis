@@ -1,0 +1,22 @@
+{
+  "parameters": [
+    {
+      "rasterId": 0,
+      "label": "Core Size (acres)",
+      "help": "Core Size (acres)",
+      "values": {
+        "GI Center Defaults": 40,
+        "Biodiversity Defaults": 20
+      }
+    },
+    {
+      "rasterId": 1,
+      "label": "Core Compactness Ratio",
+      "help": "The ratio between......",
+      "values": {
+        "GI Center Defaults": 2,
+        "Biodiversity Defaults": 2
+      }
+    }
+  ]
+}

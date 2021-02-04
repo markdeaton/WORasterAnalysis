@@ -22,6 +22,7 @@ define([
   "ApplicationBase/support/itemUtils",
   "ApplicationBase/support/domHelper",
   "dojo/dom-construct",
+  "esri/request",
   "esri/identity/IdentityManager",
   "esri/core/Evented",
   "esri/core/watchUtils",
@@ -36,7 +37,7 @@ define([
   "Application/ApplicationParameters"
 ], function(calcite, declare, ApplicationBase,
             i18n, itemUtils, domHelper, domConstruct,
-            IdentityManager, Evented, watchUtils, promiseUtils, Portal,
+            esriRequest, IdentityManager, Evented, watchUtils, promiseUtils, Portal,
             ImageryLayer, RasterFunction,
             Home, Search, Slider, Expand,
             ApplicationParameters){
@@ -249,12 +250,14 @@ define([
 
 
         // PARAMETER SLIDERS //
-        this.initializeParameterSliders();
+        this.initializeParameterSliders().then(() => {
+          // ANALYSIS //
+          this.initializeAnalysis(view, rasterAnalysisLayer);
 
-        // ANALYSIS //
-        this.initializeAnalysis(view, rasterAnalysisLayer);
+          // RESOLVE //
+          resolve();
+        });
 
-        resolve();
       });
     },
 
@@ -263,50 +266,73 @@ define([
      *
      */
     initializeParameterSliders: function(){
+      return promiseUtils.create((resolve, reject) => {
 
-      // PARAMETERS CONTAINER //
-      const parametersContainer = document.getElementById('parameters-container');
+        // PARAMETERS CONTAINER //
+        const parametersContainer = document.getElementById('parameters-container');
 
-      // PARAMETER VALUES //
-      this.parameters = {};
+        // PARAMETER VALUES //
+        this.parameters = new Map();
 
-      /**
-       *  For each parameter:
-       *   ...here's some general guidance for creating parameter nodes, labels, and sliders.
-       */
+        esriRequest('./config/parameters.json').then(response => {
 
-      const paramNode = domConstruct.create('div', {
-        className: 'parameter-node content-row tooltip tool-top tooltip-multiline',
-        'aria-label': 'parameter details here'
-      }, parametersContainer);
+          /**
+           *  For each parameter:
+           *   ...here's some general guidance for creating parameter nodes, labels, sliders, etc...
+           */
 
-      const nameNode = domConstruct.create('div', {
-        className: 'font-size--3 column-3',
-        innerHTML: 'parameter name here'
-      }, paramNode);
-      const sliderNode = domConstruct.create('div', {}, paramNode);
-      const labelNode = domConstruct.create('div', {
-        className: 'font-size--3 text-right column-2',
-        innerHTML: ''
-      }, paramNode);
+          const parameterInfos = response.data.parameters;
+          parameterInfos.forEach(parameterInfo => {
 
-      const parameterSlider = new Slider({
-        container: sliderNode,
-        min: 0, max: 100,
-        precision: 0,
-        values: [0],
-        snapOnClickEnabled: true,
-        visibleElements: { labels: false, rangeLabels: false }
+            const paramNode = domConstruct.create('div', {
+              className: 'parameter-node content-row'
+            }, parametersContainer);
+
+            const labelNode = domConstruct.create('div', {
+              className: 'parameter-name font-size--3 tooltip tooltip-right tooltip-multiline',
+              innerHTML: parameterInfo.label,
+              'aria-label': parameterInfo.help
+            }, paramNode);
+            const sliderNode = domConstruct.create('div', {
+              className: 'parameter-slider',
+              'data-id': parameterInfo.rasterId,
+            }, paramNode);
+            const percentNode = domConstruct.create('div', {
+              className: 'parameter-percent font-size--3 text-right',
+              innerHTML: ''
+            }, paramNode);
+
+            // DEFAULT VALUE //
+            const defaultValue = parameterInfo.values["GI Center Defaults"];
+            // INITIAL PARAM VALUE //
+            this.parameters.set(parameterInfo.rasterId, { id: parameterInfo.rasterId, weight: defaultValue });
+
+            const parameterSlider = new Slider({
+              container: sliderNode,
+              min: 0, max: 100,
+              precision: 0,
+              values: [defaultValue],
+              snapOnClickEnabled: true,
+              visibleElements: { labels: false, rangeLabels: false }
+            });
+            parameterSlider.watch('values', values => {
+              const value = values[0];
+              const hasValue = (value > 0);
+
+              labelNode.classList.toggle('btn-disabled', !hasValue);
+              percentNode.innerHTML = hasValue ? `${value}%` : '';
+
+              this.parameters.set(parameterInfo.rasterId, { id: parameterInfo.rasterId, weight: value });
+
+              this.emit("weight-change", { rasterId: parameterInfo.rasterId, weight: value });
+            });
+
+          });
+
+          // RESOLVE //
+          resolve();
+        });
       });
-      parameterSlider.watch('values', values => {
-        const value = values[0];
-        labelNode.innerHTML = (value > 0) ? `${value} %` : '';
-        this.parameters['paramName1'] = value;
-      });
-
-      // INITIAL PARAM VALUE //
-      this.parameters['paramName1'] = parameterSlider.values[0];
-
     },
 
     /**
@@ -345,7 +371,7 @@ define([
        *   DO ANALYSIS
        */
       const doAnalysis = () => {
-        console.info('ANALYSIS: ', nhdInput.checked, this.parameters, rasterAnalysisLayer);
+        console.info('ANALYSIS: ', nhdInput.checked, Array.from(this.parameters.values()), rasterAnalysisLayer);
 
 
       }

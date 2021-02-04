@@ -215,7 +215,24 @@ body * {
   overflow-y      : auto;
 }
 
-#parameter-node {
-  padding       : 0 5px 0 5px;
-  border-bottom : solid 1px #dedede;
+.parameter-node {
+  padding       : 5px;
+  margin-bottom : 5px;
+  border-bottom : solid 1px #ededed;
+}
+
+.parameter-node:last-of-type {
+  margin-bottom : 0;
+}
+
+.parameter-name {
+  width : 150px;
+}
+
+.parameter-slider {
+
+}
+
+.parameter-percent {
+  width : 50px;
 }
