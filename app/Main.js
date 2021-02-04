@@ -328,8 +328,10 @@ define([
             // SET INITIAL VALUE //
             parameterSlider.values = [defaultValue];
 
-            // ASSOCIATE SLIDER WITH PARAMETER //
+            // ASSOCIATE SLIDER AND PERCENT NODE WITH PARAMETER //
             parameterInfo.slider = parameterSlider;
+            parameterInfo.percentNode = percentNode;
+
           });
 
           // RESOLVE //
