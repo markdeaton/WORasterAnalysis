@@ -36,9 +36,7 @@ define([
 ], function(calcite, declare, ApplicationBase,
             i18n, itemUtils, domHelper, domConstruct,
             esriRequest, IdentityManager, Evented, watchUtils, promiseUtils, Portal,
-            ImageryLayer, RasterFunction,
-            Home, Search, Slider, Expand,
-            ApplicationParameters){
+            Home, Search, Slider, Expand, ApplicationParameters){
 
   return declare([Evented], {
 
@@ -314,13 +312,13 @@ define([
               const hasValue = (value > 0);
 
               labelNode.classList.toggle('btn-disabled', !hasValue);
-              percentNode.innerHTML = hasValue ? `${value}%` : '';
+              //percentNode.innerHTML = hasValue ? `${value}%` : '';
 
               // CURRENT PARAMETER WEIGHT //
               parameterInfo.weight = value;
 
               // NOTIFY OF WEIGHT CHANGE //
-              this.emit("weight-change", { rasterId: parameterInfo.rasterId, weight: value });
+              this.emit("weight-change", {});
             });
 
             // SET INITIAL VALUE //
@@ -346,8 +344,22 @@ define([
     initializeAnalysis: function(view, rasterAnalysisLayer){
 
       // WEIGHT CHANGE //
-      this.on("weight-change", ({ rasterId, weight }) => {
-        console.info(rasterId, weight);
+      this.on("weight-change", () => {
+
+        // GET WEIGHTED OVERLAY PARAMS //
+        const weightedOverlayParams = this.parameterInfos.map(parameterInfo => {
+          return { id: parameterInfo.rasterId, wight: parameterInfo.weight };
+        });
+        console.info('weight-change: ', weightedOverlayParams);
+
+
+        // ...HERE YOU CAN UPDATE THE PERCENT LABELS... //
+        this.parameterInfos.forEach(parameterInfo => {
+          console.info('RASTER ID: ', parameterInfo.rasterId, 'WEIGHT: ', parameterInfo.weight);
+
+          // debug //
+          parameterInfo.percentNode.innerHTML = (new Date()).getUTCSeconds();
+        });
 
       });
 
@@ -387,17 +399,20 @@ define([
         console.info('ANALYSIS LAYER: ', rasterAnalysisLayer);
         console.info('NHD OPTION: ', nhdInput.checked);
 
-        this.parameterInfos.forEach(parameterInfo => {
-          console.info('RASTER ID: ', parameterInfo.rasterId, 'WEIGHT: ', parameterInfo.weight);
-
-          rasterAnalysisLayer.renderingRule = {
-            functionName: (2 === 1) ? 'a' : 'b',
-            functionParameters: {}
-          };
-
-
+        const weightedOverlayParams = this.parameterInfos.map(parameterInfo => {
+          return { id: parameterInfo.rasterId, wight: parameterInfo.weight };
         });
+        console.info('WEIGHTED OVERLAY PARAMETERS: ', weightedOverlayParams);
+
+        // rasterAnalysisLayer.renderingRule = {
+        //   functionName: (2 === 1) ? 'a' : 'b',
+        //   functionParameters: weightedOverlayParams
+        // };
+
       }
+
+      // DO INITIAL ANALYSIS //
+      doAnalysis();
 
     }
 
