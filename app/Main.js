@@ -32,11 +32,12 @@ define([
   "esri/widgets/Search",
   "esri/widgets/Slider",
   "esri/widgets/Expand",
+  "esri/layers/support/RasterFunction",
   "Application/ApplicationParameters"
 ], function(calcite, declare, ApplicationBase,
             i18n, itemUtils, domHelper, domConstruct,
             esriRequest, IdentityManager, Evented, watchUtils, promiseUtils, Portal,
-            Home, Search, Slider, Expand, ApplicationParameters){
+            Home, Search, Slider, Expand, RasterFunction, ApplicationParameters){
 
   return declare([Evented], {
 
@@ -205,7 +206,7 @@ define([
 
           // INITIAL LAYER OPACITY AND VISIBILITY //
           rasterAnalysisLayer.opacity = 1.0;
-          rasterAnalysisLayer.visible = true;
+          rasterAnalysisLayer.visible = false;
 
           // https://developers.arcgis.com/javascript/latest/api-reference/esri-widgets-Slider.html
           const rasterAnalysisOpacitySlider = new Slider({
@@ -279,16 +280,33 @@ define([
           // PARAMETER INFOS ARE THE DEFAULT PARAMETERS AUGMENTED WITH UI ELEMENTS //
           //
           this.parameterInfos = response.data.parameters;
-          this.parameterInfos.forEach(parameterInfo => {
+          // this.parameterInfos.forEach(parameterInfo => {
+
+            // const paramNode = domConstruct.create('div', {
+              // className: 'parameter-node content-row'
+            // }, parametersContainer);
+
+            // const labelNode = domConstruct.create('div', {
+              // className: 'parameter-name font-size--3 tooltip tooltip-right tooltip-multiline',
+              // innerHTML: parameterInfo.label,
+              // 'aria-label': parameterInfo.help
+            // }, paramNode);
+          this.parameterInfos.forEach((parameterInfo, parameterInfoIdx) => {
 
             const paramNode = domConstruct.create('div', {
-              className: 'parameter-node content-row'
+              className: 'parameter-node content-row tooltip tooltip-bottom tooltip-multiline',
+              'aria-label': parameterInfo.help
             }, parametersContainer);
 
+            // SHOW TOOLTIP ABOVE FOR BOTTOM HALF OF LIST //
+            if(parameterInfoIdx > (this.parameterInfos.length / 2)){
+              paramNode.classList.remove('tooltip-bottom');
+              paramNode.classList.add('tooltip-top');
+            }
+
             const labelNode = domConstruct.create('div', {
-              className: 'parameter-name font-size--3 tooltip tooltip-right tooltip-multiline',
-              innerHTML: parameterInfo.label,
-              'aria-label': parameterInfo.help
+              className: 'parameter-name font-size--3',
+              innerHTML: parameterInfo.label
             }, paramNode);
             const sliderNode = domConstruct.create('div', {
               className: 'parameter-slider',
@@ -325,8 +343,11 @@ define([
             });
 
             // SET INITIAL VALUE //
-            parameterSlider.values = [defaultValue];
+            parameterSlider.values = [defaultValue]; // Doesn't trigger on-weight-change event
+            // this.emit("weight-change", {});
 
+            // parameterSlider.values = [0]; // We'll manually select a dropdown item on startup later
+			
             // ASSOCIATE SLIDER AND PERCENT NODE WITH PARAMETER //
             parameterInfo.slider = parameterSlider;
             parameterInfo.percentNode = percentNode;
@@ -348,22 +369,48 @@ define([
 
       // WEIGHT CHANGE //
       this.on("weight-change", () => {
-
+        let percentTotal = 0;
+        
         // GET WEIGHTED OVERLAY PARAMS //
         const weightedOverlayParams = this.parameterInfos.map(parameterInfo => {
-          return { id: parameterInfo.rasterId, wight: parameterInfo.weight };
+          return { id: parameterInfo.rasterId, weight: parameterInfo.weight };
         });
         console.info('weight-change: ', weightedOverlayParams);
 
+        // Get total of slider weights
+        const weightSum = weightedOverlayParams.reduce((total, currentValue) => {
+          return total + currentValue.weight;
+        }, 0);
 
+        // Figure out each slider's percent of the total
+        this.parameterInfos.forEach(parameterInfo => {
+          let percent = weightSum === 0 ? 0 : Math.round((parameterInfo.weight / weightSum) * 100);
+          percentTotal += percent;
+          parameterInfo.percent = percent;
+        });
+        
+        // True up percentages for small discrepancies
+        let shortfall = 100 - percentTotal;
+        if (weightSum > 0 && shortfall != 0) {
+            let adjustEachWeightBy = (shortfall > 0) ? 1 : -1;
+            for (let i = 0; i < this.parameterInfos.length & shortfall != 0; i++) {
+              let parameterInfo = this.parameterInfos[i];
+              // Don't modify a weight that's already zero
+              if (parameterInfo.percent != 0) {
+                  parameterInfo.percent += adjustEachWeightBy;
+                  shortfall -= adjustEachWeightBy;
+              }
+            }
+        }
+        
         // ...HERE YOU CAN UPDATE THE PERCENT LABELS... //
         this.parameterInfos.forEach(parameterInfo => {
-          console.info('RASTER ID: ', parameterInfo.rasterId, 'WEIGHT: ', parameterInfo.weight);
-
-          // debug //
-          parameterInfo.percentNode.innerHTML = `${(new Date()).getUTCSeconds()}%`;
+          console.info('RASTER ID: ', parameterInfo.rasterId, 'WEIGHT: ', parameterInfo.percent);
+          
+          parameterInfo.percentNode.innerHTML = parameterInfo.percent;
         });
-
+        
+        determineApplyButtonState();
       });
 
       // PRESET SELECT //
@@ -382,6 +429,9 @@ define([
       const nhdInput = document.getElementById('nhd-input');
       nhdInput.addEventListener('change', () => { doAnalysis(); });
 
+      // SELECTION COUNT LABEL //
+      const selectionCountLabel = document.getElementById('selection-count-label');
+      
       /**
        * APPLY CURRENT PRESET
        *  - GI Center Defaults
@@ -389,21 +439,41 @@ define([
        */
       const applyPreset = () => {
         this.parameterInfos.forEach(parameterInfo => {
-          //parameterInfo.weight = parameterInfo.values[presetsSelect.value];
-          parameterInfo.slider.values = [parameterInfo.weight];
+          // parameterInfo.weight = parameterInfo.values[presetsSelect.value];
+          parameterInfo.slider.values = [parameterInfo.values[presetsSelect.value]];
         });
-        doAnalysis();
+// HACK ALERT! DO NOT DO THIS!
+        setTimeout(doAnalysis, 500);
       };
 
+      const determineApplyButtonState = () => {
+        // Determine whether the right number are selected for a query
+        let iSelected = this.parameterInfos.reduce((total, currentSlider) => {
+          return currentSlider.weight > 0 ? total + 1 : total;
+        }, 0);
+        console.log("Selected weights: " + iSelected);
+        
+        selectionCountLabel.innerText = iSelected + " selected";
+				if (iSelected >= 1 && iSelected <= 10) {
+            applyBtn.disabled = false;
+        } else if (iSelected > 10) {
+            applyBtn.disabled = true;
+            selectionCountLabel.innerText = "Select no more than 10";
+        } else if (iSelected <= 0) {
+            applyBtn.disabled = true;
+        }
+        
+      };
       /**
        * RESET ALL WEIGHTS TO ZERO
        */
       const resetWeights = () => {
         this.parameterInfos.forEach(parameterInfo => {
-          //parameterInfo.weight = 0;
+          // parameterInfo.weight = 0;
           parameterInfo.slider.values = [0];
         });
-        doAnalysis();
+// HACK ALERT! DO NOT DO THIS!
+        setTimeout(doAnalysis, 500);
       };
 
       /**
@@ -411,24 +481,79 @@ define([
        *    - BUILD UP RASTER FUNCTION HERE
        */
       const doAnalysis = () => {
+        const RID_DUMMY = 2;
+        const PARAM_NHD_NAME = "Raster_2016426_211459_432";
+        const PARAM_NHD_VALUE = "$4";
+        const RFP_PREFIX_ID = "Raster";
+        const RFP_SUFFIX_WEIGHT = "_weight";
+
         console.info('ANALYSIS LAYER: ', rasterAnalysisLayer);
         console.info('NHD OPTION: ', nhdInput.checked);
 
         const weightedOverlayParams = this.parameterInfos.map(parameterInfo => {
-          return { id: parameterInfo.rasterId, wight: parameterInfo.weight };
+          return { id: parameterInfo.rasterId, weight: parameterInfo.percent / 100 };
         });
         console.info('WEIGHTED OVERLAY PARAMETERS: ', weightedOverlayParams);
 
-        // rasterAnalysisLayer.renderingRule = {
-        //   functionName: (2 === 1) ? 'a' : 'b',
-        //   functionParameters: weightedOverlayParams
-        // };
+        // If sliders are all at zero, hide the raster analysis layer
+        if (this.parameterInfos.some(parameterInfo => {
+            return parameterInfo.percent > 0;
+         })) {
+					 rasterAnalysisLayer.visible = true;
+				 } else {
+           rasterAnalysisLayer.visible = false;
+           return;
+         }
+        
+        // Create parameters
+        let params = {}, iParamsUsed = 0;
+        for (let iParam = 0; iParam < weightedOverlayParams.length; iParam++) {
+            let rasterIdAndWeight = weightedOverlayParams[iParam];
+            if (rasterIdAndWeight.weight === 0) continue;
 
+            iParamsUsed++;
+            let rastIdParamName = RFP_PREFIX_ID + iParamsUsed;
+            let rastWeightParamName = rastIdParamName + RFP_SUFFIX_WEIGHT;
+            params[rastIdParamName] = "$" + rasterIdAndWeight.id;
+            params[rastWeightParamName] = rasterIdAndWeight.weight;
+        }
+        
+        // Pad out unused parameters with dummy raster ID.
+        for (let iRemainder = iParamsUsed + 1; iRemainder < 11; iRemainder++) {
+            let rastIdParamName = RFP_PREFIX_ID + iRemainder;
+            let rastWeightParamName = rastIdParamName + RFP_SUFFIX_WEIGHT;
+            params[rastIdParamName] = "$" + RID_DUMMY; params[rastWeightParamName] = 0;
+        }
+
+        params.Colormap = [[1, 199, 255, 226], [2, 148, 213, 180], [3, 96, 172, 133], [4, 45, 130, 87], [5, 0, 89, 44]];
+        
+        let rfFunctionName = nhdInput.checked ? "WO_GI_Stretch_Mask_NHDFlow" : "WO_GI_Stretch";
+        if (nhdInput.checked) {
+          params[PARAM_NHD_NAME] = PARAM_NHD_VALUE;
+        }
+
+        const rf = new RasterFunction({
+          "functionName": rfFunctionName,
+          "functionArguments": params
+        });
+        // if (dojo.getAttr("chkNHD", "checked")) {
+            // rf.functionName = ;
+						// params[PARAM_NHD_NAME] = PARAM_NHD_VALUE;
+        // } else rf.functionName = ;
+        // else if (dispDynamic)
+            
+        // else
+            // rf.functionName = "WeightedOverlay_GlobalStats";
+            
+        // rf.functionArguments = params;
+        // lastRenderingRule = rf;
+        // setRenderingRule();
+        rasterAnalysisLayer.renderingRule = rf;
       }
 
       // DO INITIAL ANALYSIS //
-      doAnalysis();
-
+      this.emit("weight-change", {});
+      setTimeout(doAnalysis, 500);
     }
 
   });
