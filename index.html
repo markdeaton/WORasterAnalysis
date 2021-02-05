@@ -22,7 +22,7 @@
 
     <!-- DETAILS -->
     <div class="js-modal modal-overlay" data-modal="app-details-dialog">
-      <div class="modal-content column-14" aria-labelledby="modal" role="dialog">
+      <div class="modal-content column-18" aria-labelledby="modal" role="dialog">
         <div class="content-row trailer-half">
           <div class="app-title font-size-3">Configurable Application</div>
           <div class="js-modal-toggle esri-interactive icon-ui-close" aria-label="close-modal"></div>
@@ -50,7 +50,7 @@
     <header id="header-panel" class="content-row padding-left-1 padding-right-1">
       <div>
         <span class="app-title top-nav-title header-text"></span>
-        <div id="panel-toggle-btn" class="top-nav-link btn-link header-text margin-left-4">Analysis Parameters</div>
+        <div id="panel-toggle-btn" class="top-nav-link btn-link header-text margin-left-4">Calculator</div>
       </div>
       <span class="top-nav-link icon-ui-description header-text js-modal-toggle esri-interactive" data-modal="app-details-dialog"></span>
     </header>
@@ -61,13 +61,13 @@
       <!-- LEFT CONTAINER -->
       <div id="left-container" class="content-col panel panel-no-border column-7 hide">
         <div id="options-panel" class="panel panel-white trailer-half">
-          <div class="avenir-demi avenir-demi trailer-quarter">Layer Opacity</div>
+          <div class="avenir-demi avenir-demi trailer-quarter">Layer Visibility</div>
           <div class="content-row trailer-quarter">
             <div class="font-size--3 column-3">Analysis Result</div>
             <div id="raster-layer-opacity-slider"></div>
           </div>
           <div class="content-row">
-            <div class="font-size--3 column-3">PAD-US GAP Status 1 & 2</div>
+            <div class="font-size--3 column-3">Protected Lands</div>
             <div id="padus-layer-opacity-slider"></div>
           </div>
         </div>
@@ -75,14 +75,14 @@
           <div class="content-col trailer-half">
             <div class="content-row font-size-1 trailer-quarter">
               <div class="font-size-0 avenir-demi">Analysis Settings</div>
-              <div>
-                <select id="presets-select" class="font-size--3">
-                  <option value="GI Center Defaults">GI Center Defaults</option>
-                  <option value="Biodiversity Defaults">Biodiversity Defaults</option>
-                </select>
-              </div>
             </div>
-            <label id="nhd-label" class="trailer-half esri-interactive">
+            <div class="content-row trailer-half">
+              <select id="presets-select" class="font-size--3">
+                <option value="GI Center Defaults">GI Center Defaults</option>
+                <option value="Biodiversity Defaults">Biodiversity Defaults</option>
+              </select>
+            </div>
+            <label style="display:none;" id="nhd-label" class="trailer-half esri-interactive">
               <input id="nhd-input" type="checkbox">
               <span class="font-size--3">Only Results with NHDPlus water flow > 1cfs</span>
             </label>

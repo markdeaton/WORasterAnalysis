@@ -31,13 +31,14 @@ define([
   "esri/widgets/Home",
   "esri/widgets/Search",
   "esri/widgets/Slider",
+  "esri/widgets/BasemapToggle",
   "esri/widgets/Expand",
   "esri/layers/support/RasterFunction",
   "Application/ApplicationParameters"
 ], function(calcite, declare, ApplicationBase,
             i18n, itemUtils, domHelper, domConstruct,
             esriRequest, IdentityManager, Evented, watchUtils, promiseUtils, Portal,
-            Home, Search, Slider, Expand, RasterFunction, ApplicationParameters){
+            Home, Search, Slider, BasemapToggle, Expand, RasterFunction, ApplicationParameters){
 
   return declare([Evented], {
 
@@ -123,6 +124,14 @@ define([
           expandTooltip: "Search"
         });
         view.ui.add(searchExpand, { position: "top-left", index: 0 });
+
+        // BASEMAP TOGGLE //
+        // https://developers.arcgis.com/javascript/latest/api-reference/esri-Map.html#basemap
+        const basemapToggle = new BasemapToggle({
+          view: view,
+          nextBasemap: "topo"
+        });
+        view.ui.add(basemapToggle, { position: "top-right", index: 0 });
 
         // HOME //
         const home = new Home({ view: view });
@@ -305,7 +314,7 @@ define([
             }
 
             const labelNode = domConstruct.create('div', {
-              className: 'parameter-name font-size--3',
+              className: 'parameter-name font-size--3 avenir-demi',
               innerHTML: parameterInfo.label
             }, paramNode);
             const sliderNode = domConstruct.create('div', {
@@ -313,7 +322,7 @@ define([
               'data-id': parameterInfo.rasterId,
             }, paramNode);
             const percentNode = domConstruct.create('div', {
-              className: 'parameter-percent font-size--3 text-right',
+              className: 'parameter-percent font-size--3 avenir-demi text-right',
               innerHTML: ''
             }, paramNode);
 
