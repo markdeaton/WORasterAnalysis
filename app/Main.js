@@ -254,6 +254,28 @@ define([
           });
         });
 
+        //
+        // FEDLANDS LAYER //
+        //
+        const fedlandsLayer = view.map.layers.find(layer => { return (layer.title === "USA Federal Lands"); });
+        fedlandsLayer.load().then(() => {
+
+          // INITIAL LAYER OPACITY AND VISIBILITY //
+          fedlandsLayer.opacity = 0.0;
+          fedlandsLayer.visible = true;
+
+          // https://developers.arcgis.com/javascript/latest/api-reference/esri-widgets-Slider.html
+          const fedlandsOpacitySlider = new Slider({
+            container: 'fedlands-layer-opacity-slider',
+            min: 0.0, max: 1.0,
+            values: [fedlandsLayer.opacity],
+            snapOnClickEnabled: true,
+            visibleElements: { labels: false, rangeLabels: false }
+          });
+          fedlandsOpacitySlider.watch('values', values => {
+            fedlandsLayer.opacity = values[0];
+          });
+        });
 
         // PARAMETER SLIDERS //
         this.initializeParameterSliders().then(() => {
@@ -289,21 +311,11 @@ define([
           // PARAMETER INFOS ARE THE DEFAULT PARAMETERS AUGMENTED WITH UI ELEMENTS //
           //
           this.parameterInfos = response.data.parameters;
-          // this.parameterInfos.forEach(parameterInfo => {
-
-            // const paramNode = domConstruct.create('div', {
-              // className: 'parameter-node content-row'
-            // }, parametersContainer);
-
-            // const labelNode = domConstruct.create('div', {
-              // className: 'parameter-name font-size--3 tooltip tooltip-right tooltip-multiline',
-              // innerHTML: parameterInfo.label,
-              // 'aria-label': parameterInfo.help
-            // }, paramNode);
           this.parameterInfos.forEach((parameterInfo, parameterInfoIdx) => {
 
+            let classHidden = parameterInfo.hideable ? ' hideable hide' : '';
             const paramNode = domConstruct.create('div', {
-              className: 'parameter-node content-row tooltip tooltip-bottom tooltip-multiline',
+              className: 'parameter-node content-row tooltip tooltip-bottom tooltip-multiline' + classHidden,
               'aria-label': parameterInfo.help
             }, parametersContainer);
 
@@ -323,6 +335,7 @@ define([
             }, paramNode);
             const percentNode = domConstruct.create('div', {
               className: 'parameter-percent font-size--3 avenir-demi text-right',
+              style: {'padding-right': '6px'}, 
               innerHTML: ''
             }, paramNode);
 
@@ -361,6 +374,15 @@ define([
             parameterInfo.slider = parameterSlider;
             parameterInfo.percentNode = percentNode;
 
+          });
+
+          // TOGGLE HIDEABLE PARAMETER NODES //
+          const parameterToggleBtn = document.getElementById('parameter-toggle-btn');
+          parameterToggleBtn.addEventListener('click', () => {
+            document.querySelectorAll('.hideable').forEach(node => {
+              node.classList.toggle('hide');
+            });
+            parameterToggleBtn.innerHTML = (parameterToggleBtn.innerHTML === 'more') ? 'less' : 'more';
           });
 
           // RESOLVE //
@@ -545,18 +567,7 @@ define([
           "functionName": rfFunctionName,
           "functionArguments": params
         });
-        // if (dojo.getAttr("chkNHD", "checked")) {
-            // rf.functionName = ;
-						// params[PARAM_NHD_NAME] = PARAM_NHD_VALUE;
-        // } else rf.functionName = ;
-        // else if (dispDynamic)
-            
-        // else
-            // rf.functionName = "WeightedOverlay_GlobalStats";
-            
-        // rf.functionArguments = params;
-        // lastRenderingRule = rf;
-        // setRenderingRule();
+
         rasterAnalysisLayer.renderingRule = rf;
       }
 
