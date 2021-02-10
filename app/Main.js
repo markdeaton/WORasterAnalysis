@@ -28,17 +28,22 @@ define([
   "esri/core/watchUtils",
   "esri/core/promiseUtils",
   "esri/portal/Portal",
+  "esri/layers/GraphicsLayer",
+  "esri/widgets/Sketch",
+  "esri/symbols/support/symbolUtils",
   "esri/widgets/Home",
   "esri/widgets/Search",
   "esri/widgets/Slider",
   "esri/widgets/BasemapToggle",
   "esri/widgets/Expand",
+  "esri/layers/ImageryLayer",
   "esri/layers/support/RasterFunction",
   "Application/ApplicationParameters"
 ], function(calcite, declare, ApplicationBase,
             i18n, itemUtils, domHelper, domConstruct,
             esriRequest, IdentityManager, Evented, watchUtils, promiseUtils, Portal,
-            Home, Search, Slider, BasemapToggle, Expand, RasterFunction, ApplicationParameters){
+            GraphicsLayer, Sketch, symbolUtils,
+            Home, Search, Slider, BasemapToggle, Expand, ImageryLayer, RasterFunction, ApplicationParameters){
 
   return declare([Evented], {
 
@@ -210,9 +215,12 @@ define([
         // RASTER ANALYSIS LAYER //
         //
         const rasterAnalysisLayer = view.map.layers.find(layer => { return (layer.title === "WO Raster Analysis"); });
+        rasterAnalysisLayer.interpolation = "nearest";
+        rasterAnalysisLayer.blendMode = "multiply";
+        
         rasterAnalysisLayer.load().then(() => {
           // rasterAnalysisLayer
-
+          
           // INITIAL LAYER OPACITY AND VISIBILITY //
           rasterAnalysisLayer.opacity = 1.0;
           rasterAnalysisLayer.visible = false;
@@ -235,8 +243,8 @@ define([
         // PADUS LAYER //
         //
         const padusLayer = view.map.layers.find(layer => { return (layer.title === "GAPStatus1And2"); });
+        padusLayer.interpolation = "nearest";
         padusLayer.load().then(() => {
-
           // INITIAL LAYER OPACITY AND VISIBILITY //
           padusLayer.opacity = 0.0;
           padusLayer.visible = true;
@@ -281,6 +289,9 @@ define([
         this.initializeParameterSliders().then(() => {
           // ANALYSIS //
           this.initializeAnalysis(view, rasterAnalysisLayer);
+
+          // SKETCH TOOLS //
+          this.initializeSketchTools(view);
 
           // RESOLVE //
           resolve();
@@ -335,12 +346,12 @@ define([
             }, paramNode);
             const percentNode = domConstruct.create('div', {
               className: 'parameter-percent font-size--3 avenir-demi text-right',
-              style: {'padding-right': '6px'}, 
+              style: { 'padding-right': '6px', 'padding-left': '3px' }, 
               innerHTML: ''
             }, paramNode);
 
             // DEFAULT VALUE //
-            const defaultValue = parameterInfo.values["GI Center Defaults"];
+            const defaultValue = parameterInfo.values["No Priority"];
 
             // PARAMETER SLIDER //
             const parameterSlider = new Slider({
@@ -423,15 +434,15 @@ define([
         // True up percentages for small discrepancies
         let shortfall = 100 - percentTotal;
         if (weightSum > 0 && shortfall != 0) {
-            let adjustEachWeightBy = (shortfall > 0) ? 1 : -1;
-            for (let i = 0; i < this.parameterInfos.length & shortfall != 0; i++) {
-              let parameterInfo = this.parameterInfos[i];
-              // Don't modify a weight that's already zero
-              if (parameterInfo.percent != 0) {
-                  parameterInfo.percent += adjustEachWeightBy;
-                  shortfall -= adjustEachWeightBy;
-              }
+          let adjustEachWeightBy = (shortfall > 0) ? 1 : -1;
+          for (let i = 0; i < this.parameterInfos.length & shortfall != 0; i++) {
+            let parameterInfo = this.parameterInfos[i];
+            // Don't modify a weight that's already zero
+            if (parameterInfo.percent != 0) {
+              parameterInfo.percent += adjustEachWeightBy;
+              shortfall -= adjustEachWeightBy;
             }
+          }
         }
         
         // ...HERE YOU CAN UPDATE THE PERCENT LABELS... //
@@ -503,6 +514,7 @@ define([
           // parameterInfo.weight = 0;
           parameterInfo.slider.values = [0];
         });
+        presetsSelect.selectedIndex = 0;
 // HACK ALERT! DO NOT DO THIS!
         setTimeout(doAnalysis, 500);
       };
@@ -526,19 +538,26 @@ define([
         });
         console.info('WEIGHTED OVERLAY PARAMETERS: ', weightedOverlayParams);
 
-        // If sliders are all at zero, hide the raster analysis layer
-        if (this.parameterInfos.some(parameterInfo => {
-            return parameterInfo.percent > 0;
-         })) {
-					 rasterAnalysisLayer.visible = true;
-				 } else {
-           rasterAnalysisLayer.visible = false;
-           return;
-         }
+        var params, rfFunctionName;
         
-        // Create parameters
-        let params = {}, iParamsUsed = 0;
-        for (let iParam = 0; iParam < weightedOverlayParams.length; iParam++) {
+        // If sliders are all at zero, show a transparent or constant-color raster
+        if (!this.parameterInfos.some(parameterInfo => {
+          return parameterInfo.percent > 0;
+        })) {
+          rfFunctionName = "Colormap";
+          params = {
+              "Colormap": [
+                [0,103, 162, 109]
+              ],
+              "Raster": `$${RID_DUMMY}`,
+              "variableName": "Raster"
+          };
+          // rasterAnalysisLayer.visible = false;
+        } else {
+        
+          // Create parameters
+          params = {}, iParamsUsed = 0;
+          for (let iParam = 0; iParam < weightedOverlayParams.length; iParam++) {
             let rasterIdAndWeight = weightedOverlayParams[iParam];
             if (rasterIdAndWeight.weight === 0) continue;
 
@@ -547,33 +566,138 @@ define([
             let rastWeightParamName = rastIdParamName + RFP_SUFFIX_WEIGHT;
             params[rastIdParamName] = "$" + rasterIdAndWeight.id;
             params[rastWeightParamName] = rasterIdAndWeight.weight;
-        }
-        
-        // Pad out unused parameters with dummy raster ID.
-        for (let iRemainder = iParamsUsed + 1; iRemainder < 11; iRemainder++) {
+          }
+          
+          // Pad out unused parameters with dummy raster ID.
+          for (let iRemainder = iParamsUsed + 1; iRemainder < 11; iRemainder++) {
             let rastIdParamName = RFP_PREFIX_ID + iRemainder;
             let rastWeightParamName = rastIdParamName + RFP_SUFFIX_WEIGHT;
             params[rastIdParamName] = "$" + RID_DUMMY; params[rastWeightParamName] = 0;
-        }
+          }
 
-        params.Colormap = [[1, 199, 255, 226], [2, 148, 213, 180], [3, 96, 172, 133], [4, 45, 130, 87], [5, 0, 89, 44]];
-        
-        let rfFunctionName = nhdInput.checked ? "WO_GI_Stretch_Mask_NHDFlow" : "WO_GI_Stretch";
-        if (nhdInput.checked) {
-          params[PARAM_NHD_NAME] = PARAM_NHD_VALUE;
+          params.Colormap = [[1, 199, 255, 226], [2, 148, 213, 180], [3, 96, 172, 133], [4, 45, 130, 87], [5, 0, 89, 44]];
+          
+          rfFunctionName = nhdInput.checked ? "WO_GI_Stretch_Mask_NHDFlow" : "WO_GI_Stretch";
+          if (nhdInput.checked) {
+            params[PARAM_NHD_NAME] = PARAM_NHD_VALUE;
+          }
         }
 
         const rf = new RasterFunction({
           "functionName": rfFunctionName,
           "functionArguments": params
         });
-
+        rasterAnalysisLayer.visible = true;
         rasterAnalysisLayer.renderingRule = rf;
+
       }
 
       // DO INITIAL ANALYSIS //
       this.emit("weight-change", {});
       setTimeout(doAnalysis, 500);
+    },
+    
+    /**
+     * SKETCH TOOLS
+     *
+     * @param view
+     */
+    initializeSketchTools: function(view){
+
+
+      // ACTION LABEL //
+      const actionLabel = 'Sketch Federal Lands';
+
+
+      // SKETCH PANEL //
+      const sketchPanel = domConstruct.create('div', { className: 'panel panel-theme' });
+      // SKETCH LABEL //
+      const labelNode = domConstruct.create('div', { className: 'font-size-0', innerHTML: actionLabel }, sketchPanel);
+      // ACTIONS NODE //
+      const actionsNode = domConstruct.create('div', { className: 'content-row' }, sketchPanel);
+      // TYPE SYMBOL //
+      const typeSymbol = domConstruct.create('div', { className: 'sketch-type-symbol-node' }, actionsNode);
+      // TYPE SELECT //
+      const typeSelect = domConstruct.create('select', { className: 'sketch-select margin-right-1', title: 'select the type of sketch' }, actionsNode);
+
+
+      // SKETCH LAYER //
+      const sketchLayer = new GraphicsLayer({ title: actionLabel, opacity: 0.9 });
+      view.map.add(sketchLayer);
+
+
+      // SKETCH WIDGET //
+      const sketch = new Sketch({
+        container: domConstruct.create('div', {}, actionsNode),
+        view: view,
+        layer: sketchLayer,
+        availableCreateTools: ['polygon', 'rectangle', 'circle'],
+        creationMode: 'single',
+        defaultCreateOptions: {},
+        defaultUpdateOptions: { toggleToolOnClick: false, multipleSelectionEnabled: false },
+        visibleElements: { undoRedoMenu: false, selectionTools: { 'rectangle-selection': false, "lasso-selection": false } }
+      });
+      // DISABLE UPDATE //
+      sketch.viewModel.updateOnGraphicClick = false;
+
+
+      // SET SKETCH SYMBOL //
+      const setSketchSymbol = (symbol) => {
+        sketch.viewModel.polygonSymbol = symbol;
+        typeSymbol.innerHTML = '';
+        symbolUtils.renderPreviewHTML(symbol, { node: typeSymbol, size: 16 });
+      };
+
+
+      // FEDERAL LANDS LAYER //
+      const federalLandsLayer = view.map.layers.find(layer => { return (layer.title === "USA Federal Lands"); });
+      federalLandsLayer.load().then(() => {
+        const symbolByValue = new Map();
+        federalLandsLayer.renderer.uniqueValueInfos.forEach(uvInfo => {
+          // SELECT OPTION //
+          domConstruct.create('option', { value: uvInfo.value, innerHTML: uvInfo.label }, typeSelect);
+          // TWEAK SKETCH SYMBOL //
+          const fillOpacity = 0.5;
+          const sketchSymbol = uvInfo.symbol.clone();
+          sketchSymbol.set({
+            color: `rgba(${sketchSymbol.color.r},${sketchSymbol.color.g},${sketchSymbol.color.b},${fillOpacity})`,
+            outline: { color: sketchSymbol.color, width: 1.8 }
+          });
+          // SKETCH SYMBOL BY VALUE //
+          symbolByValue.set(uvInfo.value, sketchSymbol);
+        });
+        typeSelect.addEventListener('change', () => {
+          // SET SKETCH SYMBOL //
+          setSketchSymbol(symbolByValue.get(typeSelect.value));
+        });
+        // SET INITIAL SKETCH SYMBOL //
+        setSketchSymbol(Array.from(symbolByValue.values())[0]);
+      });
+
+
+      // MISUSE UPDATE/SELECT TO DELETE WHEN SELECTED //
+      sketch.on('update', () => { sketch.delete(); });
+
+
+      // DELETE SKETCH //
+      const deleteBtn = domConstruct.create('button', { className: 'btn-link icon-ui-trash text-white margin-left-1', title: 'delete all sketches' }, actionsNode);
+      deleteBtn.addEventListener('click', () => { sketchLayer.removeAll(); });
+
+
+      // SKETCH EXPAND //
+      const sketchExpand = new Expand({
+        view: view,
+        content: sketchPanel,
+        expanded: false,
+        expandIconClass: "esri-icon-edit",
+        expandTooltip: actionLabel
+      });
+      sketchExpand.watch('expanded', expanded => {
+        // DISABLE SELECT/UPDATE/DELETE SKETCH EVENTS WHEN NOT EXPANDED //
+        sketch.viewModel.updateOnGraphicClick = expanded;
+      })
+      view.ui.add(sketchExpand, { position: 'top-right', index: 1 });
+
     }
 
   });

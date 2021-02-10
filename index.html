@@ -52,7 +52,10 @@
         <span class="app-title top-nav-title header-text"></span>
         <div id="panel-toggle-btn" class="top-nav-link btn-link header-text margin-left-4">Calculator</div>
       </div>
-      <span class="top-nav-link icon-ui-description header-text js-modal-toggle esri-interactive" data-modal="app-details-dialog"></span>
+      <div class="content-row">
+        <img src="./assets/esri_science_of_where_white.png">
+        <span class="top-nav-link icon-ui-description header-text js-modal-toggle margin-left-1 esri-interactive" data-modal="app-details-dialog"></span>
+      </div>
     </header>
 
     <!-- MAIN CONTAINER -->
@@ -63,16 +66,16 @@
         <div id="options-panel" class="panel panel-white trailer-half">
           <div class="avenir-demi avenir-demi trailer-quarter">Layer Visibility</div>
           <div class="content-row trailer-quarter">
-            <div class="font-size--3 column-3">Analysis Result</div>
-            <div id="raster-layer-opacity-slider"></div>
-          </div>
-          <div class="content-row trailer-quarter">
             <div class="font-size--3 column-3">Protected Lands</div>
             <div id="padus-layer-opacity-slider"></div>
           </div>
-          <div class="content-row">
+          <div class="content-row trailer-quarter">
             <div class="font-size--3 column-3">Federal Lands</div>
             <div id="fedlands-layer-opacity-slider"></div>
+          </div>
+          <div class="content-row">
+            <div class="font-size--3 column-3">Analysis Result</div>
+            <div id="raster-layer-opacity-slider"></div>
           </div>
         </div>
         <div id="list-panel" class="panel panel-white">
@@ -82,8 +85,10 @@
             </div>
             <div class="content-row trailer-half">
               <select id="presets-select" class="font-size--3 select-full">
-                <option value="GI Center Defaults">GI Center Defaults</option>
-                <option value="Biodiversity Defaults">Biodiversity Defaults</option>
+                <option value="No Priority">No Priority</option>
+                <option value="Priority Forest Service">Priority Forest Service</option>
+                <option value="Priority National Park Service">Priority National Park Service</option>
+                <option value="Priority BLM">Priority BLM</option>
               </select>
             </div>
             <label style="display:none;" id="nhd-label" class="trailer-half esri-interactive">

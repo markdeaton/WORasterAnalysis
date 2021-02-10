@@ -1,7 +1,7 @@
 :root {
   --theme-text-color       : #fefefe;
   --theme-label-color      : #3d6642;
-  --theme-background-color : #57935e;
+  --theme-background-color : #935957;
   --theme-border-color     : #666666;
   --theme-highlight-color  : #66ff78;
 }
@@ -212,7 +212,7 @@ body * {
   flex-direction  : column;
   justify-content : flex-start;
   overflow-x      : hidden;
-  overflow-y      : scroll;
+  overflow-y      : auto; /* scroll; */
 }
 
 .parameter-node {
@@ -244,4 +244,20 @@ body * {
 
 .esri-slider__anchor:focus .esri-slider__thumb {
   border-color : var(--theme-background-color);
+}
+
+.sketch-select {
+  margin : 0;
+}
+
+.sketch-type-symbol-node {
+  z-index          : 99;
+  margin-top       : 1px;
+  padding          : 4px 5px 1px 5px;
+  background-color : #fefefe;
+}
+
+.esri-sketch__section {
+  padding : 0;
+  margin  : 0;
 }
