@@ -203,6 +203,11 @@ body * {
   flex-direction : row;
 }
 
+#mask-label {
+  display        : flex;
+  flex-direction : row;
+}
+
 #parameters-container {
   flex-grow       : 1;
   flex-shrink     : 1;

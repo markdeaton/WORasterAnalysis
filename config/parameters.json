@@ -6,9 +6,9 @@
             "hideable": false,
             "values": {
                 "No Priority": 0,
-                "Priority Forest Service": 100,
-                "Priority National Park Service": 50,
-                "Priority BLM": 17
+                "Priority Forests": 50,
+                "Priority Wetlands": 0,
+                "Priority Rangeland": 14
             }
         }, {
             "rasterId": 3,
@@ -17,9 +17,9 @@
             "hideable": false,
             "values": {
                 "No Priority": 0,
-                "Priority Forest Service": 0,
-                "Priority National Park Service": 50,
-                "Priority BLM": 26
+                "Priority Forests": 50,
+                "Priority Wetlands": 50,
+                "Priority Rangeland": 21
             }
         }, {
             "rasterId": 25,
@@ -28,9 +28,9 @@
             "hideable": false,
             "values": {
                 "No Priority": 0,
-                "Priority Forest Service": 0,
-                "Priority National Park Service": 0,
-                "Priority BLM": 0
+                "Priority Forests": 0,
+                "Priority Wetlands": 50,
+                "Priority Rangeland": 0
             }
         }, {
             "rasterId": 8,
@@ -39,9 +39,9 @@
             "hideable": false,
             "values": {
                 "No Priority": 0,
-                "Priority Forest Service": 0,
-                "Priority National Park Service": 0,
-                "Priority BLM": 13
+                "Priority Forests": 0,
+                "Priority Wetlands": 0,
+                "Priority Rangeland": 10
             }
         }, {
             "rasterId": 12,
@@ -50,9 +50,9 @@
             "hideable": false,
             "values": {
                 "No Priority": 0,
-                "Priority Forest Service": 0,
-                "Priority National Park Service": 0,
-                "Priority BLM": 11
+                "Priority Forests": 0,
+                "Priority Wetlands": 0,
+                "Priority Rangeland": 9
             }
         }, {
             "rasterId": 1,
@@ -61,9 +61,9 @@
             "hideable": false,
             "values": {
                 "No Priority": 0,
-                "Priority Forest Service": 0,
-                "Priority National Park Service": 0,
-                "Priority BLM": 33
+                "Priority Forests": 0,
+                "Priority Wetlands": 0,
+                "Priority Rangeland": 46
             }
         }, {
             "rasterId": 9,
@@ -72,9 +72,9 @@
             "hideable": true,
             "values": {
                 "No Priority": 0,
-                "Priority Forest Service": 0,
-                "Priority National Park Service": 0,
-                "Priority BLM": 0
+                "Priority Forests": 0,
+                "Priority Wetlands": 0,
+                "Priority Rangeland": 0
             }
         }, {
             "rasterId": 11,
@@ -83,9 +83,9 @@
             "hideable": true,
             "values": {
                 "No Priority": 0,
-                "Priority Forest Service": 0,
-                "Priority National Park Service": 0,
-                "Priority BLM": 0
+                "Priority Forests": 0,
+                "Priority Wetlands": 0,
+                "Priority Rangeland": 0
             }
         }, {
             "rasterId": 23,
@@ -94,9 +94,9 @@
             "hideable": true,
             "values": {
                 "No Priority": 0,
-                "Priority Forest Service": 0,
-                "Priority National Park Service": 0,
-                "Priority BLM": 0
+                "Priority Forests": 0,
+                "Priority Wetlands": 0,
+                "Priority Rangeland": 0
             }
         }, {
             "rasterId": 6,
@@ -105,9 +105,9 @@
             "hideable": true,
             "values": {
                 "No Priority": 0,
-                "Priority Forest Service": 0,
-                "Priority National Park Service": 0,
-                "Priority BLM": 0
+                "Priority Forests": 0,
+                "Priority Wetlands": 0,
+                "Priority Rangeland": 0
             }
         }, {
             "rasterId": 7,
@@ -116,9 +116,9 @@
             "hideable": true,
             "values": {
                 "No Priority": 0,
-                "Priority Forest Service": 0,
-                "Priority National Park Service": 0,
-                "Priority BLM": 0
+                "Priority Forests": 0,
+                "Priority Wetlands": 0,
+                "Priority Rangeland": 0
             }
         }, {
             "rasterId": 24,
@@ -127,9 +127,9 @@
             "hideable": true,
             "values": {
                 "No Priority": 0,
-                "Priority Forest Service": 0,
-                "Priority National Park Service": 0,
-                "Priority BLM": 0
+                "Priority Forests": 0,
+                "Priority Wetlands": 0,
+                "Priority Rangeland": 0
             }
         }, {
             "rasterId": 20,
@@ -138,9 +138,9 @@
             "hideable": true,
             "values": {
                 "No Priority": 0,
-                "Priority Forest Service": 0,
-                "Priority National Park Service": 0,
-                "Priority BLM": 0
+                "Priority Forests": 0,
+                "Priority Wetlands": 0,
+                "Priority Rangeland": 0
             }
         }, {
             "rasterId": 5,
@@ -149,9 +149,9 @@
             "hideable": true,
             "values": {
                 "No Priority": 0,
-                "Priority Forest Service": 0,
-                "Priority National Park Service": 0,
-                "Priority BLM": 0
+                "Priority Forests": 0,
+                "Priority Wetlands": 0,
+                "Priority Rangeland": 0
             }
         }, {
             "rasterId": 10,
@@ -160,9 +160,9 @@
             "hideable": true,
             "values": {
                 "No Priority": 0,
-                "Priority Forest Service": 0,
-                "Priority National Park Service": 0,
-                "Priority BLM": 0
+                "Priority Forests": 0,
+                "Priority Wetlands": 0,
+                "Priority Rangeland": 0
             }
         }, {
             "rasterId": 14,
@@ -171,9 +171,9 @@
             "hideable": true,
             "values": {
                 "No Priority": 0,
-                "Priority Forest Service": 0,
-                "Priority National Park Service": 0,
-                "Priority BLM": 0
+                "Priority Forests": 0,
+                "Priority Wetlands": 0,
+                "Priority Rangeland": 0
             }
         }, {
             "rasterId": 18,
@@ -182,9 +182,9 @@
             "hideable": true,
             "values": {
                 "No Priority": 0,
-                "Priority Forest Service": 0,
-                "Priority National Park Service": 0,
-                "Priority BLM": 0
+                "Priority Forests": 0,
+                "Priority Wetlands": 0,
+                "Priority Rangeland": 0
             }
         }, {
             "rasterId": 22,
@@ -193,9 +193,9 @@
             "hideable": true,
             "values": {
                 "No Priority": 0,
-                "Priority Forest Service": 0,
-                "Priority National Park Service": 0,
-                "Priority BLM": 0
+                "Priority Forests": 0,
+                "Priority Wetlands": 0,
+                "Priority Rangeland": 0
             }
         }, {
             "rasterId": 13,
@@ -204,9 +204,9 @@
             "hideable": true,
             "values": {
                 "No Priority": 0,
-                "Priority Forest Service": 0,
-                "Priority National Park Service": 0,
-                "Priority BLM": 0
+                "Priority Forests": 0,
+                "Priority Wetlands": 0,
+                "Priority Rangeland": 0
             }
         }, {
             "rasterId": 15,
@@ -215,9 +215,9 @@
             "hideable": true,
             "values": {
                 "No Priority": 0,
-                "Priority Forest Service": 0,
-                "Priority National Park Service": 0,
-                "Priority BLM": 0
+                "Priority Forests": 0,
+                "Priority Wetlands": 0,
+                "Priority Rangeland": 0
             }
         }, {
             "rasterId": 19,
@@ -226,9 +226,9 @@
             "hideable": true,
             "values": {
                 "No Priority": 0,
-                "Priority Forest Service": 0,
-                "Priority National Park Service": 0,
-                "Priority BLM": 0
+                "Priority Forests": 0,
+                "Priority Wetlands": 0,
+                "Priority Rangeland": 0
             }
         }, {
             "rasterId": 17,
@@ -237,9 +237,9 @@
             "hideable": true,
             "values": {
                 "No Priority": 0,
-                "Priority Forest Service": 0,
-                "Priority National Park Service": 0,
-                "Priority BLM": 0
+                "Priority Forests": 0,
+                "Priority Wetlands": 0,
+                "Priority Rangeland": 0
             }
         }, {
             "rasterId": 21,
@@ -248,9 +248,9 @@
             "hideable": true,
             "values": {
                 "No Priority": 0,
-                "Priority Forest Service": 0,
-                "Priority National Park Service": 0,
-                "Priority BLM": 0
+                "Priority Forests": 0,
+                "Priority Wetlands": 0,
+                "Priority Rangeland": 0
             }
         }
     ]

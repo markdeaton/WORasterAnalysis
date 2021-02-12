@@ -214,7 +214,7 @@ define([
         //
         // RASTER ANALYSIS LAYER //
         //
-        const rasterAnalysisLayer = view.map.layers.find(layer => { return (layer.title === "WO Raster Analysis"); });
+        const rasterAnalysisLayer = view.map.allLayers.find(layer => { return (layer.title === "WO Raster Analysis"); });
         rasterAnalysisLayer.interpolation = "nearest";
         rasterAnalysisLayer.blendMode = "multiply";
         
@@ -242,8 +242,20 @@ define([
         //
         // PADUS LAYER //
         //
-        const padusLayer = view.map.layers.find(layer => { return (layer.title === "GAPStatus1And2"); });
+        const padusLayer = view.map.allLayers.find(layer => { return (layer.title === "GAPStatus1And2"); });
         padusLayer.interpolation = "nearest";
+        const rfPadus = new RasterFunction({
+          "functionName": "Colormap",
+          "functionArguments": {
+            "Colormap": [
+              [1,0,43,3],[2,0,43,3],[-1,0,0,0],[256,0,0,0]
+            ],
+            // "Raster": {"rasterFunction":"GAP Status 1-4"},
+            "variableName": "Raster"
+					}
+				});
+				padusLayer.renderingRule = rfPadus;
+
         padusLayer.load().then(() => {
           // INITIAL LAYER OPACITY AND VISIBILITY //
           padusLayer.opacity = 0.0;
@@ -265,7 +277,7 @@ define([
         //
         // FEDLANDS LAYER //
         //
-        const fedlandsLayer = view.map.layers.find(layer => { return (layer.title === "USA Federal Lands"); });
+        const fedlandsLayer = view.map.allLayers.find(layer => { return (layer.title === "USA Federal Lands"); });
         fedlandsLayer.load().then(() => {
 
           // INITIAL LAYER OPACITY AND VISIBILITY //
@@ -284,6 +296,33 @@ define([
             fedlandsLayer.opacity = values[0];
           });
         });
+          
+        // COMBINED ANALYSIS LAYER / FEDLANDS OPACITY //
+        const analysisFedlandsOpacitySlider = new Slider({
+          container: 'analysisfedlands-layer-opacity-slider',
+          min: 0.0, max: 1.0,
+          values: [0.0],
+          snapOnClickEnabled: true,
+          visibleElements: { labels: false, rangeLabels: false }
+        });
+        analysisFedlandsOpacitySlider.watch('values', values => {
+          let value = values[0];
+          rasterAnalysisLayer.opacity = 1.0 - value;
+          fedlandsLayer.opacity = value;
+        });
+        
+        //
+        // MASK-PRIORITIES LAYER //
+        //
+        const maskLayer = view.map.allLayers.find(layer => {return (layer.title === "Bureau of Land Management"); });
+        maskLayer.load().then(() => {
+          maskLayer.visible = false;
+        });
+        const maskInput = document.getElementById('mask-input');
+        maskInput.addEventListener('change', () => { 
+          maskLayer.visible = maskInput.checked;
+        });
+
 
         // PARAMETER SLIDERS //
         this.initializeParameterSliders().then(() => {
@@ -650,7 +689,7 @@ define([
 
 
       // FEDERAL LANDS LAYER //
-      const federalLandsLayer = view.map.layers.find(layer => { return (layer.title === "USA Federal Lands"); });
+      const federalLandsLayer = view.map.allLayers.find(layer => { return (layer.title === "USA Federal Lands"); });
       federalLandsLayer.load().then(() => {
         const symbolByValue = new Map();
         federalLandsLayer.renderer.uniqueValueInfos.forEach(uvInfo => {
